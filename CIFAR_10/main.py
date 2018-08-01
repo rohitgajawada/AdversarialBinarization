@@ -2,6 +2,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import sys
 import torch
 import argparse
 import data
@@ -12,6 +13,7 @@ import torch.optim as optim
 from models import nin, ninfprec, discriminator
 from util import calc_gradient_penalty
 from torch.autograd import Variable
+from tensorboardX import SummaryWriter
 
 def save_state(student, best_acc):
     print('==> Saving models ...')
@@ -22,7 +24,7 @@ def save_state(student, best_acc):
     torch.save(state, 'models/all.pth')
 
 
-def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args):
+def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args, writer):
 
     n_critic = 1
     if args.losstype == 'wgangp':
@@ -82,6 +84,9 @@ def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, 
             student_optimizer.step()
 
             # print(batch_idx, disc_adv_loss.data, gen_adv_loss.data, task_loss.data)
+            writer.add_scalar('Disc Loss', disc_adv_loss.data.tolist()[0], batch_idx)
+            writer.add_scalar('Gen Loss', gen_adv_loss.data.tolist()[0], batch_idx)
+            writer.add_scalar('Task Loss', task_loss.data.tolist()[0], batch_idx)
 
             if batch_idx % 100 == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tLR: {}'.format(
@@ -131,7 +136,7 @@ def adjust_learning_rate(optimizer, epoch):
 if __name__=='__main__':
     # prepare the options
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', action='store', default='../../data/',
+    parser.add_argument('--data', action='store', default='/home/rohit.gajawada/data',
             help='dataset path')
     parser.add_argument('--arch', action='store', default='nin',
             help='the architecture for the network: nin')
@@ -241,9 +246,15 @@ if __name__=='__main__':
 
     # start training
     test(teacher, False)
+    print("Now testing dumb student")
+    test(student)
+
+    writer = SummaryWriter()
+
     for epoch in range(1, 320):
         adjust_learning_rate(student_optimizer, epoch)
         adjust_learning_rate(netD_optimizer, epoch)
 
-        train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args)
+        train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args, writer)
         test(student)
+        sys.stdout.flush()

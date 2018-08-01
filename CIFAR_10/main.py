@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
@@ -14,14 +13,13 @@ from models import nin, ninfprec, discriminator
 from util import calc_gradient_penalty
 from torch.autograd import Variable
 
-def save_state(student, netD, best_acc):
+def save_state(student, best_acc):
     print('==> Saving models ...')
     state = {
             'best_acc': best_acc,
-            'student_state_dict': student.state_dict(),
-            'netD_state_dict': netD.state_dict()
+            'student_state_dict': student.state_dict()
             }
-    torch.save(state, 'models/all.pth.tar')
+    torch.save(state, 'models/all.pth')
 
 
 def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args):
@@ -83,24 +81,24 @@ def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, 
 
             student_optimizer.step()
 
-            print(batch_idx, disc_adv_loss, gen_adv_loss, task_loss)
+            # print(batch_idx, disc_adv_loss.data, gen_adv_loss.data, task_loss.data)
 
             if batch_idx % 100 == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tLR: {}'.format(
                     epoch, batch_idx * len(data), len(trainloader.dataset), 100. * batch_idx / len(trainloader), loss.data[0], student_optimizer.param_groups[0]['lr']))
 
 
-def test(student):
+def test(model, studflag=True):
     best_acc = 0
     test_loss = 0
     correct = 0
 
-    student.eval()
+    model.eval()
     bin_op.binarization()
     for data, target in testloader:
 
         data, target = Variable(data.cuda()), Variable(target.cuda())
-        output = student(data)
+        output, h1_student, h2_student = model(data)
         test_loss += criterion(output, target).data[0]
         pred = output.data.max(1, keepdim=True)[1]
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
@@ -108,14 +106,18 @@ def test(student):
     bin_op.restore()
     acc = 100. * correct / len(testloader.dataset)
 
-    if acc > best_acc:
-        best_acc = acc
-        save_state(student, best_acc)
+    if studflag == False:
+        print("Teacher showing student")
+    else:
+        if acc > best_acc:
+            best_acc = acc
+            save_state(model, best_acc)
 
     test_loss /= len(testloader.dataset)
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
         test_loss * 128., correct, len(testloader.dataset),
         100. * correct / len(testloader.dataset)))
+
     print('Best Accuracy: {:.2f}%\n'.format(best_acc))
 
 
@@ -144,18 +146,18 @@ if __name__=='__main__':
             help='gan loss function')
 
 
-    parser.add_argument('--teacher', action='store', default='../../teacher.pth',
+    parser.add_argument('--teacher', action='store', default='./best_acc.pth',
         help='the path to the pretrained full prec teacher')
 
-    parser.add_argument('--pretrained', action='store', default=None,
+    parser.add_argument('--pretrainedstudent', action='store', default=None,
             help='the path to the pretrained student')
     parser.add_argument('--evaluate', action='store_true',
             help='evaluate the model')
     args = parser.parse_args()
     print('==> Options:',args)
 
-    torch.manual_seed(1)
-    torch.cuda.manual_seed(1)
+    torch.manual_seed(123)
+    torch.cuda.manual_seed(123)
 
     if not os.path.isfile(args.data+'/train_data'):
         raise Exception\
@@ -166,7 +168,7 @@ if __name__=='__main__':
             shuffle=True, num_workers=2)
 
     testset = data.dataset(root=args.data, train=False)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=500,
+    testloader = torch.utils.data.DataLoader(testset, batch_size=128,
             shuffle=False, num_workers=2)
 
     # define classes
@@ -183,7 +185,7 @@ if __name__=='__main__':
         netD = discriminator.netD()
         netD.cuda()
 
-    if not args.pretrained:
+    if not args.pretrainedstudent:
         print('==> Initializing model parameters ...')
         best_acc = 0
         for m in student.modules():
@@ -195,16 +197,26 @@ if __name__=='__main__':
                 d.weight.data.normal_(0, 0.05)
                 d.bias.data.zero_()
     else:
-        print('==> Load pretrained student from', args.pretrained, '...')
-        pretrained_student = torch.load(args.pretrained)
+        print('==> Load pretrained student from', args.pretrainedstudent, '...')
+        pretrained_student = torch.load(args.pretrainedstudent)
         best_acc = pretrained_student['best_acc']
         student.load_state_dict(pretrained_student['state_dict'])
 
     #load pretrained teacher
     teacher = ninfprec.Net()
+    teacher_state_dict = teacher.state_dict()
+
+    pretrained_teacher = torch.load(args.teacher)
+    pretrain_state_dict = pretrained_teacher['net']
+
+    for i, keys in enumerate(zip(teacher_state_dict.keys(), pretrain_state_dict.keys())):
+        newkey, oldkey = keys
+        print("Transferring ", newkey, " to ", oldkey)
+        teacher_state_dict[newkey] = pretrain_state_dict[oldkey]
+
+    teacher.load_state_dict(teacher_state_dict)
     teacher.cuda()
-    # pretrained_teacher = torch.load(args.pretrained)
-    # teacher.load_state_dict(pretrained_teacher['state_dict'])
+    print("Teacher Loaded!")
 
     # define solver and criterion
     student_param_dict = dict(student.named_parameters())
@@ -228,6 +240,7 @@ if __name__=='__main__':
         exit(0)
 
     # start training
+    test(teacher, False)
     for epoch in range(1, 320):
         adjust_learning_rate(student_optimizer, epoch)
         adjust_learning_rate(netD_optimizer, epoch)

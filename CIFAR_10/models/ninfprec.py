@@ -38,4 +38,4 @@ class Net(nn.Module):
         h2 = self.net_2(h1)
         x = self.net_3(h2)
         x = x.view(x.size(0), 10)
-        return x, h1, h2
+        return x, h2

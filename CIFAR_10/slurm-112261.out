@@ -1,0 +1,209 @@
+==> Options: Namespace(advweight=1.0, arch='res18', data='/home/rohit.gajawada/data', evaluate=False, l2weight=0.5, losstype='gan', netD='res18', netDlr=0.001, pretrainedstudent=None, studlr=0.001, teacher='./res18.t7')
+Files already downloaded and verified
+Files already downloaded and verified
+==> building model res18 ...
+==> Initializing model parameters ...
+Transferring  conv1.weight  to  conv1.weight
+Transferring  bn1.weight  to  bn1.weight
+Transferring  bn1.bias  to  bn1.bias
+Transferring  bn1.running_mean  to  bn1.running_mean
+Transferring  bn1.running_var  to  bn1.running_var
+Transferring  layer1.0.conv1.weight  to  layer1.0.conv1.weight
+Transferring  layer1.0.bn1.weight  to  layer1.0.bn1.weight
+Transferring  layer1.0.bn1.bias  to  layer1.0.bn1.bias
+Transferring  layer1.0.bn1.running_mean  to  layer1.0.bn1.running_mean
+Transferring  layer1.0.bn1.running_var  to  layer1.0.bn1.running_var
+Transferring  layer1.0.conv2.weight  to  layer1.0.conv2.weight
+Transferring  layer1.0.bn2.weight  to  layer1.0.bn2.weight
+Transferring  layer1.0.bn2.bias  to  layer1.0.bn2.bias
+Transferring  layer1.0.bn2.running_mean  to  layer1.0.bn2.running_mean
+Transferring  layer1.0.bn2.running_var  to  layer1.0.bn2.running_var
+Transferring  layer1.1.conv1.weight  to  layer1.1.conv1.weight
+Transferring  layer1.1.bn1.weight  to  layer1.1.bn1.weight
+Transferring  layer1.1.bn1.bias  to  layer1.1.bn1.bias
+Transferring  layer1.1.bn1.running_mean  to  layer1.1.bn1.running_mean
+Transferring  layer1.1.bn1.running_var  to  layer1.1.bn1.running_var
+Transferring  layer1.1.conv2.weight  to  layer1.1.conv2.weight
+Transferring  layer1.1.bn2.weight  to  layer1.1.bn2.weight
+Transferring  layer1.1.bn2.bias  to  layer1.1.bn2.bias
+Transferring  layer1.1.bn2.running_mean  to  layer1.1.bn2.running_mean
+Transferring  layer1.1.bn2.running_var  to  layer1.1.bn2.running_var
+Transferring  layer2.0.conv1.weight  to  layer2.0.conv1.weight
+Transferring  layer2.0.bn1.weight  to  layer2.0.bn1.weight
+Transferring  layer2.0.bn1.bias  to  layer2.0.bn1.bias
+Transferring  layer2.0.bn1.running_mean  to  layer2.0.bn1.running_mean
+Transferring  layer2.0.bn1.running_var  to  layer2.0.bn1.running_var
+Transferring  layer2.0.conv2.weight  to  layer2.0.conv2.weight
+Transferring  layer2.0.bn2.weight  to  layer2.0.bn2.weight
+Transferring  layer2.0.bn2.bias  to  layer2.0.bn2.bias
+Transferring  layer2.0.bn2.running_mean  to  layer2.0.bn2.running_mean
+Transferring  layer2.0.bn2.running_var  to  layer2.0.bn2.running_var
+Transferring  layer2.0.shortcut.0.weight  to  layer2.0.shortcut.0.weight
+Transferring  layer2.0.shortcut.1.weight  to  layer2.0.shortcut.1.weight
+Transferring  layer2.0.shortcut.1.bias  to  layer2.0.shortcut.1.bias
+Transferring  layer2.0.shortcut.1.running_mean  to  layer2.0.shortcut.1.running_mean
+Transferring  layer2.0.shortcut.1.running_var  to  layer2.0.shortcut.1.running_var
+Transferring  layer2.1.conv1.weight  to  layer2.1.conv1.weight
+Transferring  layer2.1.bn1.weight  to  layer2.1.bn1.weight
+Transferring  layer2.1.bn1.bias  to  layer2.1.bn1.bias
+Transferring  layer2.1.bn1.running_mean  to  layer2.1.bn1.running_mean
+Transferring  layer2.1.bn1.running_var  to  layer2.1.bn1.running_var
+Transferring  layer2.1.conv2.weight  to  layer2.1.conv2.weight
+Transferring  layer2.1.bn2.weight  to  layer2.1.bn2.weight
+Transferring  layer2.1.bn2.bias  to  layer2.1.bn2.bias
+Transferring  layer2.1.bn2.running_mean  to  layer2.1.bn2.running_mean
+Transferring  layer2.1.bn2.running_var  to  layer2.1.bn2.running_var
+Transferring  layer3.0.conv1.weight  to  layer3.0.conv1.weight
+Transferring  layer3.0.bn1.weight  to  layer3.0.bn1.weight
+Transferring  layer3.0.bn1.bias  to  layer3.0.bn1.bias
+Transferring  layer3.0.bn1.running_mean  to  layer3.0.bn1.running_mean
+Transferring  layer3.0.bn1.running_var  to  layer3.0.bn1.running_var
+Transferring  layer3.0.conv2.weight  to  layer3.0.conv2.weight
+Transferring  layer3.0.bn2.weight  to  layer3.0.bn2.weight
+Transferring  layer3.0.bn2.bias  to  layer3.0.bn2.bias
+Transferring  layer3.0.bn2.running_mean  to  layer3.0.bn2.running_mean
+Transferring  layer3.0.bn2.running_var  to  layer3.0.bn2.running_var
+Transferring  layer3.0.shortcut.0.weight  to  layer3.0.shortcut.0.weight
+Transferring  layer3.0.shortcut.1.weight  to  layer3.0.shortcut.1.weight
+Transferring  layer3.0.shortcut.1.bias  to  layer3.0.shortcut.1.bias
+Transferring  layer3.0.shortcut.1.running_mean  to  layer3.0.shortcut.1.running_mean
+Transferring  layer3.0.shortcut.1.running_var  to  layer3.0.shortcut.1.running_var
+Transferring  layer3.1.conv1.weight  to  layer3.1.conv1.weight
+Transferring  layer3.1.bn1.weight  to  layer3.1.bn1.weight
+Transferring  layer3.1.bn1.bias  to  layer3.1.bn1.bias
+Transferring  layer3.1.bn1.running_mean  to  layer3.1.bn1.running_mean
+Transferring  layer3.1.bn1.running_var  to  layer3.1.bn1.running_var
+Transferring  layer3.1.conv2.weight  to  layer3.1.conv2.weight
+Transferring  layer3.1.bn2.weight  to  layer3.1.bn2.weight
+Transferring  layer3.1.bn2.bias  to  layer3.1.bn2.bias
+Transferring  layer3.1.bn2.running_mean  to  layer3.1.bn2.running_mean
+Transferring  layer3.1.bn2.running_var  to  layer3.1.bn2.running_var
+Transferring  layer4.0.conv1.weight  to  layer4.0.conv1.weight
+Transferring  layer4.0.bn1.weight  to  layer4.0.bn1.weight
+Transferring  layer4.0.bn1.bias  to  layer4.0.bn1.bias
+Transferring  layer4.0.bn1.running_mean  to  layer4.0.bn1.running_mean
+Transferring  layer4.0.bn1.running_var  to  layer4.0.bn1.running_var
+Transferring  layer4.0.conv2.weight  to  layer4.0.conv2.weight
+Transferring  layer4.0.bn2.weight  to  layer4.0.bn2.weight
+Transferring  layer4.0.bn2.bias  to  layer4.0.bn2.bias
+Transferring  layer4.0.bn2.running_mean  to  layer4.0.bn2.running_mean
+Transferring  layer4.0.bn2.running_var  to  layer4.0.bn2.running_var
+Transferring  layer4.0.shortcut.0.weight  to  layer4.0.shortcut.0.weight
+Transferring  layer4.0.shortcut.1.weight  to  layer4.0.shortcut.1.weight
+Transferring  layer4.0.shortcut.1.bias  to  layer4.0.shortcut.1.bias
+Transferring  layer4.0.shortcut.1.running_mean  to  layer4.0.shortcut.1.running_mean
+Transferring  layer4.0.shortcut.1.running_var  to  layer4.0.shortcut.1.running_var
+Transferring  layer4.1.conv1.weight  to  layer4.1.conv1.weight
+Transferring  layer4.1.bn1.weight  to  layer4.1.bn1.weight
+Transferring  layer4.1.bn1.bias  to  layer4.1.bn1.bias
+Transferring  layer4.1.bn1.running_mean  to  layer4.1.bn1.running_mean
+Transferring  layer4.1.bn1.running_var  to  layer4.1.bn1.running_var
+Transferring  layer4.1.conv2.weight  to  layer4.1.conv2.weight
+Transferring  layer4.1.bn2.weight  to  layer4.1.bn2.weight
+Transferring  layer4.1.bn2.bias  to  layer4.1.bn2.bias
+Transferring  layer4.1.bn2.running_mean  to  layer4.1.bn2.running_mean
+Transferring  layer4.1.bn2.running_var  to  layer4.1.bn2.running_var
+Transferring  linear.weight  to  linear.weight
+Transferring  linear.bias  to  linear.bias
+Teacher Loaded!
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+Teacher showing student
+
+Test set: Average loss: 0.6193, Accuracy: 9376/10000 (93.76%)
+Best Accuracy: 0.00%
+
+Now testing dumb student
+10.0 0
+==> Saving models ...
+
+Test set: Average loss: 3.4802, Accuracy: 1000/10000 (10.00%)
+Best Accuracy: 10.00%
+
+Train Epoch: 1 [0/50000 (0%)]	Loss: 2.221658	LR: 0.001
+Train Epoch: 1 [12800/50000 (26%)]	Loss: 16.831934	LR: 0.001
+Train Epoch: 1 [25600/50000 (51%)]	Loss: 0.750346	LR: 0.001
+Train Epoch: 1 [38400/50000 (77%)]	Loss: 18.705168	LR: 0.001
+38.0 0
+==> Saving models ...
+
+Test set: Average loss: 2.1325, Accuracy: 3800/10000 (38.00%)
+Best Accuracy: 38.00%
+
+Train Epoch: 2 [0/50000 (0%)]	Loss: 18.939768	LR: 0.001
+Train Epoch: 2 [12800/50000 (26%)]	Loss: 45.613548	LR: 0.001
+Train Epoch: 2 [25600/50000 (51%)]	Loss: 36.265209	LR: 0.001
+Train Epoch: 2 [38400/50000 (77%)]	Loss: 19.035429	LR: 0.001
+44.78 38.0
+==> Saving models ...
+
+Test set: Average loss: 1.9631, Accuracy: 4478/10000 (44.78%)
+Best Accuracy: 44.78%
+
+Train Epoch: 3 [0/50000 (0%)]	Loss: 57.772472	LR: 0.001
+Train Epoch: 3 [12800/50000 (26%)]	Loss: 78.753906	LR: 0.001
+Train Epoch: 3 [25600/50000 (51%)]	Loss: 85.268692	LR: 0.001
+Train Epoch: 3 [38400/50000 (77%)]	Loss: 94.749687	LR: 0.001
+46.04 44.78
+==> Saving models ...
+
+Test set: Average loss: 1.9271, Accuracy: 4604/10000 (46.04%)
+Best Accuracy: 46.04%
+
+Train Epoch: 4 [0/50000 (0%)]	Loss: 66.694664	LR: 0.001
+Train Epoch: 4 [12800/50000 (26%)]	Loss: 100.965904	LR: 0.001
+Train Epoch: 4 [25600/50000 (51%)]	Loss: 130.977509	LR: 0.001
+Train Epoch: 4 [38400/50000 (77%)]	Loss: 111.249352	LR: 0.001
+46.06 46.04
+==> Saving models ...
+
+Test set: Average loss: 2.1103, Accuracy: 4606/10000 (46.06%)
+Best Accuracy: 46.06%
+
+Train Epoch: 5 [0/50000 (0%)]	Loss: 122.125626	LR: 0.001
+Train Epoch: 5 [12800/50000 (26%)]	Loss: 88.520699	LR: 0.001
+Train Epoch: 5 [25600/50000 (51%)]	Loss: 143.533081	LR: 0.001
+Train Epoch: 5 [38400/50000 (77%)]	Loss: 111.514626	LR: 0.001
+54.67 46.06
+==> Saving models ...
+
+Test set: Average loss: 1.6485, Accuracy: 5467/10000 (54.67%)
+Best Accuracy: 54.67%
+
+Train Epoch: 6 [0/50000 (0%)]	Loss: 107.970581	LR: 0.001
+Train Epoch: 6 [12800/50000 (26%)]	Loss: 1347.698120	LR: 0.001
+Train Epoch: 6 [25600/50000 (51%)]	Loss: 1255.904053	LR: 0.001
+Train Epoch: 6 [38400/50000 (77%)]	Loss: 1225.582886	LR: 0.001
+52.67 54.67
+
+Test set: Average loss: 1.6686, Accuracy: 5267/10000 (52.67%)
+Best Accuracy: 54.67%
+
+Train Epoch: 7 [0/50000 (0%)]	Loss: 940.848328	LR: 0.001
+Train Epoch: 7 [12800/50000 (26%)]	Loss: 1021.334167	LR: 0.001
+Train Epoch: 7 [25600/50000 (51%)]	Loss: 939.730774	LR: 0.001
+Train Epoch: 7 [38400/50000 (77%)]	Loss: 885.704590	LR: 0.001
+55.7 54.67
+==> Saving models ...
+
+Test set: Average loss: 1.5711, Accuracy: 5570/10000 (55.70%)
+Best Accuracy: 55.70%
+
+Train Epoch: 8 [0/50000 (0%)]	Loss: 1165.280151	LR: 0.001
+slurmstepd: *** JOB 112261 ON gnode41 CANCELLED AT 2018-08-07T19:45:11 ***

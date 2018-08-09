@@ -4,31 +4,19 @@ from torch.autograd import grad
 from torch.autograd import Variable
 import numpy
 
-def calc_gradient_penalty(netD, h1_teacher, h2_teacher, h1_student, h2_student):
-    alpha = torch.rand((h1_teacher.size(0), 1, 1, 1))
+def calc_gradient_penalty(netD, inputs, fake_inputs):
+    alpha = torch.rand((inputs.size(0), 1, 1, 1))
     alpha = alpha.cuda()
 
-    x_hat_1 = alpha * h1_teacher.data + (1 - alpha) * h1_student.data
-    x_hat_2 = alpha * h2_teacher.data + (1 - alpha) * h2_student.data
+    x_hat = alpha * inputs.data + (1 - alpha) * fake_inputs.data
+    x_hat = Variable(x_hat, requires_grad=True)
 
-    x_hat_1 = Variable(x_hat_1, requires_grad=True)
-    x_hat_2 = Variable(x_hat_2, requires_grad=True)
+    pred_hat = netD(x_hat)
 
-    pred_hat = netD(x_hat_1, x_hat_2)
-
-    gradients_1 = grad(outputs=pred_hat, inputs=x_hat_1, grad_outputs=torch.ones(pred_hat.size()).cuda(),
+    gradients = grad(outputs=pred_hat, inputs=x_hat, grad_outputs=torch.ones(pred_hat.size()).cuda(),
                     create_graph=True, retain_graph=True, only_inputs=True)[0]
 
-    gradients_2 = grad(outputs=pred_hat, inputs=x_hat_2, grad_outputs=torch.ones(pred_hat.size()).cuda(),
-                    create_graph=True, retain_graph=True, only_inputs=True)[0]
-
-    gradients_1 = gradients_1.contiguous()
-    gradients_2 = gradients_2.contiguous()
-
-    gradient_penalty_1 = 5 * ((gradients_1.view(gradients_1.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
-    gradient_penalty_2 = 5 * ((gradients_2.view(gradients_2.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
-
-    gradient_penalty = gradient_penalty_1 + gradient_penalty_2
+    gradient_penalty = 10 * ((gradients.view(gradients.size()[0], -1).norm(2, 1) - 1) ** 2).mean()
     return gradient_penalty
 
 def set_requires_grad(nets, requires_grad=False):
@@ -49,9 +37,7 @@ class BinOp():
 
         start_range = 1
         end_range = count_Conv2d-2
-        self.bin_range = numpy.linspace(start_range,
-                end_range, end_range-start_range+1)\
-                        .astype('int').tolist()
+        self.bin_range = numpy.linspace(start_range, end_range, end_range-start_range+1).astype('int').tolist()
         self.num_of_params = len(self.bin_range)
         self.saved_params = []
         self.target_params = []
@@ -61,6 +47,7 @@ class BinOp():
             if isinstance(m, nn.Conv2d):
                 index = index + 1
                 if index in self.bin_range:
+                    print(index)
                     tmp = m.weight.data.clone()
                     self.saved_params.append(tmp)
                     self.target_modules.append(m.weight)
@@ -105,8 +92,7 @@ class BinOp():
             weight = self.target_modules[index].data
             n = weight[0].nelement()
             s = weight.size()
-            m = weight.norm(1, 3, keepdim=True)\
-                    .sum(2, keepdim=True).sum(1, keepdim=True).div(n).expand(s)
+            m = weight.norm(1, 3, keepdim=True).sum(2, keepdim=True).sum(1, keepdim=True).div(n).expand(s)
             m[weight.lt(-1.0)] = 0
             m[weight.gt(1.0)] = 0
             # m = m.add(1.0/n).mul(1.0-1.0/s[1]).mul(n)
@@ -114,7 +100,6 @@ class BinOp():
             #         self.target_modules[index].grad.data.mul(m)
             m = m.mul(self.target_modules[index].grad.data)
             m_add = weight.sign().mul(self.target_modules[index].grad.data)
-            m_add = m_add.sum(3, keepdim=True)\
-                    .sum(2, keepdim=True).sum(1, keepdim=True).div(n).expand(s)
+            m_add = m_add.sum(3, keepdim=True).sum(2, keepdim=True).sum(1, keepdim=True).div(n).expand(s)
             m_add = m_add.mul(weight.sign())
             self.target_modules[index].grad.data = m.add(m_add).mul(1.0-1.0/s[1]).mul(n)

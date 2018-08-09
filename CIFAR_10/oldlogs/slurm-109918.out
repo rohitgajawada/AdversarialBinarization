@@ -1,0 +1,38 @@
+==> Options: Namespace(advweight=0.5, arch='nin', data='/home/rohit.gajawada/data', evaluate=False, losstype='wgangp', netD='basic', netDlr=0.001, pretrainedstudent=None, studlr=0.001, teacher='./best_acc.pth')
+==> building model nin ...
+==> Initializing model parameters ...
+Transferring  net_1.0.weight  to  classifer.0.weight
+Transferring  net_1.0.bias  to  classifer.0.bias
+Transferring  net_1.2.weight  to  classifer.2.weight
+Transferring  net_1.2.bias  to  classifer.2.bias
+Transferring  net_1.4.weight  to  classifer.4.weight
+Transferring  net_1.4.bias  to  classifer.4.bias
+Transferring  net_2.0.weight  to  classifer.8.weight
+Transferring  net_2.0.bias  to  classifer.8.bias
+Transferring  net_2.2.weight  to  classifer.10.weight
+Transferring  net_2.2.bias  to  classifer.10.bias
+Transferring  net_2.4.weight  to  classifer.12.weight
+Transferring  net_2.4.bias  to  classifer.12.bias
+Transferring  net_3.0.weight  to  classifer.16.weight
+Transferring  net_3.0.bias  to  classifer.16.bias
+Transferring  net_3.2.weight  to  classifer.18.weight
+Transferring  net_3.2.bias  to  classifer.18.bias
+Transferring  net_3.4.weight  to  classifer.20.weight
+Transferring  net_3.4.bias  to  classifer.20.bias
+Teacher Loaded!
+Teacher showing student
+
+Test set: Average loss: 0.4817, Accuracy: 9008/10000 (90.08%)
+Best Accuracy: 0.00%
+
+Now testing dumb student
+10.12 0
+==> Saving models ...
+Traceback (most recent call last):
+  File "main.py", line 268, in <module>
+
+Test set: Average loss: 2.3290, Accuracy: 1012/10000 (10.12%)
+Best Accuracy: 10.12%
+
+    train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, GANLoss, epoch, args, writer)
+NameError: name 'GANLoss' is not defined

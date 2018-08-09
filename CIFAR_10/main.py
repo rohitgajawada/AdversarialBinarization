@@ -24,8 +24,7 @@ def save_state(student, best_acc):
     torch.save(state, 'models/all.pth')
 
 
-def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args, writer):
-
+def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, GANLoss, epoch, args, writer):
     n_critic = 1
     if args.losstype == 'wgangp':
         n_critic = 5
@@ -51,12 +50,12 @@ def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, 
         if args.losstype == 'wgangp':
             gradient_penalty = calc_gradient_penalty(netD, h1_teacher, h2_teacher, h1_student, h2_student)
             disc_adv_loss = torch.mean(adv_outputD_fake - adv_outputD_real) + gradient_penalty
-        elif args.losstype == 'lsgan':
+        elif args.losstype == 'lsgan' or args.losstype == 'gan':
             labsize = adv_outputD_real.size()
-            labels_real = Variable(torch.ones(labsize)).cuda() + Variable(torch.rand(labsize).cuda() * 0.1 - 0.05)
-            labels_fake = Variable(torch.zeros(labsize)).cuda() + Variable(torch.rand(labsize).cuda() * 0.1 - 0.05)
-            disc_adv_loss = 0.5 * (MSELoss(adv_outputD_fake, labels_fake) + MSELoss(adv_outputD_real, labels_real))
-
+            labels_real = Variable(torch.ones(labsize)).cuda()
+            labels_fake = Variable(torch.zeros(labsize)).cuda()
+            disc_adv_loss = 0.5 * (GANLoss(adv_outputD_fake, labels_fake) + GANLoss(adv_outputD_real, labels_real))
+            #+ Variable(torch.rand(labsize).cuda() * 0.1 - 0.05)
 
         disc_adv_loss.backward(retain_graph=True)
         netD_optimizer.step()
@@ -71,9 +70,9 @@ def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, 
             if args.losstype == 'wgangp':
                 gen_adv_loss = -1.0 * torch.mean(adv_outputD_fake)
                 loss = (gen_adv_loss + 5 * task_loss) / 15.0
-            elif args.losstype == 'lsgan':
-                gen_adv_loss = MSELoss(adv_outputD_fake, labels_real)
-                loss = gen_adv_loss + task_loss
+            elif args.losstype == 'lsgan' or args.losstype == 'gan':
+                gen_adv_loss = GANLoss(adv_outputD_fake, labels_real)
+                loss = (args.advweight * gen_adv_loss + task_loss) / (args.advweight + 1.0)
 
             loss.backward()
 
@@ -84,18 +83,18 @@ def train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, 
             student_optimizer.step()
 
             # print(batch_idx, disc_adv_loss.data, gen_adv_loss.data, task_loss.data)
-            writer.add_scalar('Disc Loss', disc_adv_loss.data.tolist()[0], batch_idx)
-            writer.add_scalar('Gen Loss', gen_adv_loss.data.tolist()[0], batch_idx)
-            writer.add_scalar('Task Loss', task_loss.data.tolist()[0], batch_idx)
+            writer.add_scalar('Disc Loss', disc_adv_loss.data.tolist()[0], epoch)
+            writer.add_scalar('Gen Loss', gen_adv_loss.data.tolist()[0], epoch)
+            writer.add_scalar('Task Loss', task_loss.data.tolist()[0], epoch)
+            print(epoch, disc_adv_loss.data.tolist()[0], gen_adv_loss.data.tolist()[0], task_loss.data.tolist()[0])
 
             if batch_idx % 100 == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tLR: {}'.format(
                     epoch, batch_idx * len(data), len(trainloader.dataset), 100. * batch_idx / len(trainloader), loss.data[0], student_optimizer.param_groups[0]['lr']))
 
 
-def test(model, studflag=True):
-    best_acc = 0
-    test_loss = 0
+def test(model, best_acc, studflag=True):
+    test_loss = 0.0
     correct = 0
 
     model.eval()
@@ -114,6 +113,7 @@ def test(model, studflag=True):
     if studflag == False:
         print("Teacher showing student")
     else:
+        print(acc, best_acc)
         if acc > best_acc:
             best_acc = acc
             save_state(model, best_acc)
@@ -125,9 +125,11 @@ def test(model, studflag=True):
 
     print('Best Accuracy: {:.2f}%\n'.format(best_acc))
 
+    return best_acc
+
 
 def adjust_learning_rate(optimizer, epoch):
-    update_list = [120, 200, 240, 280]
+    update_list = [500, 1000, 1500, 2000]
     if epoch in update_list:
         for param_group in optimizer.param_groups:
             param_group['lr'] = param_group['lr'] * 0.1
@@ -149,7 +151,7 @@ if __name__=='__main__':
             help='the intial learning rate')
     parser.add_argument('--losstype', action='store', default='lsgan',
             help='gan loss function')
-
+    parser.add_argument('--advweight', action='store', default=0.5)
 
     parser.add_argument('--teacher', action='store', default='./best_acc.pth',
         help='the path to the pretrained full prec teacher')
@@ -158,6 +160,8 @@ if __name__=='__main__':
             help='the path to the pretrained student')
     parser.add_argument('--evaluate', action='store_true',
             help='evaluate the model')
+
+
     args = parser.parse_args()
     print('==> Options:',args)
 
@@ -170,11 +174,11 @@ if __name__=='__main__':
 
     trainset = data.dataset(root=args.data, train=True)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=128,
-            shuffle=True, num_workers=2)
+            shuffle=True, num_workers=6)
 
     testset = data.dataset(root=args.data, train=False)
     testloader = torch.utils.data.DataLoader(testset, batch_size=128,
-            shuffle=False, num_workers=2)
+            shuffle=False, num_workers=6)
 
     # define classes
     classes = ('plane', 'car', 'bird', 'cat',
@@ -231,7 +235,11 @@ if __name__=='__main__':
         student_params += [{'params':[value], 'lr': args.studlr, 'weight_decay':0.00001}]
 
     criterion = nn.CrossEntropyLoss()
-    MSELoss = torch.nn.MSELoss()
+
+    if args.losstype == 'gan':
+        GANLoss = torch.nn.BCEWithLogitsLoss()
+    else:
+        GANLoss = torch.nn.MSELoss()
 
     student_optimizer = optim.Adam(student_params, lr=args.studlr, weight_decay=0.00001)
     netD_optimizer = optim.Adam(netD.parameters(), lr=args.netDlr, weight_decay=0.00001)
@@ -244,17 +252,21 @@ if __name__=='__main__':
         test(student)
         exit(0)
 
+    best_acc = 0
+
     # start training
-    test(teacher, False)
+    test(teacher, best_acc, False)
     print("Now testing dumb student")
-    test(student)
+    test(student, best_acc)
 
     writer = SummaryWriter()
 
-    for epoch in range(1, 320):
+    for epoch in range(1, 2500):
         adjust_learning_rate(student_optimizer, epoch)
         adjust_learning_rate(netD_optimizer, epoch)
 
-        train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, MSELoss, epoch, args, writer)
-        test(student)
+        train(student, netD, teacher, student_optimizer, netD_optimizer, criterion, GANLoss, epoch, args, writer)
+        best_acc = test(student, best_acc)
         sys.stdout.flush()
+
+    writer.close()

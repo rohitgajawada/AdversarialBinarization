@@ -59,7 +59,9 @@ class Net(nn.Module):
         self.xnor_2 = nn.Sequential(
                 BinConv2d( 96, 192, kernel_size=5, stride=1, padding=2, dropout=0.5),
                 BinConv2d(192, 192, kernel_size=1, stride=1, padding=0),
-                BinConv2d(192, 192, kernel_size=1, stride=1, padding=0),
+		        nn.BatchNorm2d(192, eps=1e-4, momentum=0.1, affine=False),
+                nn.Conv2d(192, 192, kernel_size=1, stride=1, padding=0),
+                nn.ReLU(inplace=True),
                 nn.AvgPool2d(kernel_size=3, stride=2, padding=1))
 
         self.xnor_3 = nn.Sequential(
@@ -76,8 +78,7 @@ class Net(nn.Module):
         h2 = self.xnor_2(h1)
         x = self.xnor_3(h2)
         x = x.view(x.size(0), 10)
-
-        return x, h1, h2
+        return x, h2
 
 # student = Net()
 # student.cuda()

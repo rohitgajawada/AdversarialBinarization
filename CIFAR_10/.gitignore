@@ -1,3 +1,7 @@
 *.pyc
 models/*.pyc
 models/*.pth
+runs/*
+*.t7
+*.pth
+data
